@@ -1,0 +1,51 @@
+{
+  "name": "faf-context",
+  "displayName": "FAF — Project Context",
+  "description": "Show where your project.faf stands — score, tier, drift — and render its context card, without leaving the editor.",
+  "version": "0.0.1",
+  "publisher": "faf",
+  "license": "MIT",
+  "private": true,
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Wolfe-Jam/faf-vscode.git"
+  },
+  "homepage": "https://faf.one",
+  "bugs": {
+    "url": "https://github.com/Wolfe-Jam/faf-vscode/issues"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "faf",
+    "ai-context",
+    "project-dna",
+    "agents-md"
+  ],
+  "main": "./dist/extension.js",
+  "activationEvents": [
+    "workspaceContains:**/project.faf"
+  ],
+  "contributes": {},
+  "scripts": {
+    "build": "node esbuild.js",
+    "watch": "node esbuild.js --watch",
+    "typecheck": "tsc --noEmit",
+    "lint": "tsc --noEmit",
+    "smoke": "npm run build && node scripts/smoke.mjs",
+    "vscode:prepublish": "node esbuild.js --production"
+  },
+  "dependencies": {
+    "faf-cli": "7.10.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.1",
+    "@types/vscode": "^1.90.0",
+    "esbuild": "^0.24.2",
+    "typescript": "^5.9.3"
+  }
+}

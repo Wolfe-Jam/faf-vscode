@@ -1,0 +1,16 @@
+# Source + tooling — the shipped artifact is the esbuild bundle.
+.vscode/**
+.github/**
+src/**
+scripts/**
+.smoke-storage/**
+esbuild.js
+tsconfig.json
+**/*.map
+**/*.ts
+.gitignore
+.editorconfig
+
+# node_modules: the bundle inlines faf-cli. Keep only the external WASM kernel.
+node_modules/**
+!node_modules/faf-scoring-kernel/**

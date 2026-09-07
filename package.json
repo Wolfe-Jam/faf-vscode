@@ -27,7 +27,6 @@
     "agents-md"
   ],
   "main": "./dist/extension.js",
-  "icon": "resources/faf-context.svg",
   "activationEvents": [
     "workspaceContains:**/project.faf"
   ],

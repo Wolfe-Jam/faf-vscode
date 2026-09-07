@@ -29,8 +29,8 @@ human_context:
   what: Show where your project.faf stands — score, tier, drift — and render its context card, without leaving the editor.
   why: So the state of project.faf is a one-glance editor concern instead of a terminal round-trip — the human half of FAF context, paired with faf-mcp's AI half.
   where: https://github.com/Wolfe-Jam/faf-vscode
-  when: Phase 0 — packaging confirmation. Proves that faf-cli's scoring API runs inside a bundled extension artifact with the WASM kernel loading cleanly. No HUD, sidebar, status bar, or commands yet — those are Phase 1+.
-  how: npm run build
+  when: Phase 3 — Onboarding. Status bar + sidebar HUD + context card (Phase 1/2) plus the version-locked FAF CLI runner, FAF Init/Sync/DNA commands, the getting-started walkthrough, CodeLens on project.faf, path-aware slot navigation, and Workspace Trust gating. Phase 4 = Marketplace + Open VSX + CI publish.
+  how: esbuild bundles faf-cli's library for in-process scoring; the shipped faf-cli/dist/cli.js runs on VS Code's own Node for Init/Sync/DNA. bun test for Tier 1, real extension host for Tier 2 (CI).
 monorepo:
   packages_count: slotignored
   build_orchestrator: slotignored
@@ -45,6 +45,13 @@ key_files:
   - package.json
   - README.md
   - tsconfig.json
+  - esbuild.js
+  - src/extension.ts
+  - src/model.ts
+  - src/engine.ts
+  - src/faf/run.ts
+  - src/view/codelens.ts
 commands:
   build: npm run build
+  test: npm test
   lint: npm run lint

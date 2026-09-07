@@ -48,6 +48,36 @@ describe('createWatcher', () => {
     expect(refreshes).toBe(1);
   });
 
+  test('reports fafChanged: true only when project.faf was the file touched', () => {
+    jest.useFakeTimers();
+    const seen: boolean[] = [];
+    createWatcher('/ws', (fafChanged) => seen.push(fafChanged));
+    const watcher = mockApi.__watchers[0]!;
+
+    watcher.emitChange('/ws/CLAUDE.md');
+    jest.advanceTimersByTime(150);
+    watcher.emitChange('/ws/project.faf');
+    jest.advanceTimersByTime(150);
+    watcher.emitChange(); // no path (delete event etc.) -> assume the .faf moved
+    jest.advanceTimersByTime(150);
+
+    expect(seen).toEqual([false, true, true]);
+  });
+
+  test('a project.faf touch in the same debounce window wins over a CLAUDE.md touch', () => {
+    jest.useFakeTimers();
+    const seen: boolean[] = [];
+    createWatcher('/ws', (fafChanged) => seen.push(fafChanged));
+    const watcher = mockApi.__watchers[0]!;
+
+    watcher.emitChange('/ws/CLAUDE.md');
+    watcher.emitChange('/ws/project.faf');
+    watcher.emitChange('/ws/AGENTS.md');
+    jest.advanceTimersByTime(150);
+
+    expect(seen).toEqual([true]);
+  });
+
   test('dispose() tears down the watcher and cancels a pending fire', () => {
     jest.useFakeTimers();
     let refreshes = 0;

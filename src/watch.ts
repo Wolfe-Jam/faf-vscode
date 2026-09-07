@@ -8,12 +8,14 @@ export const DEBOUNCE_MS = 150;
 
 /**
  * Watch `project.faf` + its sync targets in `root`. Any create/change/delete is
- * debounced, then `onChange` fires once. The returned Disposable clears the
- * pending timer and tears down the watcher.
+ * debounced, then `onChange(fafChanged)` fires once — `fafChanged` is `true`
+ * when `project.faf` itself was touched (or the event carried no path), so a
+ * `CLAUDE.md`-only edit can skip the context-card re-render. The returned
+ * Disposable clears the pending timer and tears down the watcher.
  */
 export function createWatcher(
   root: string,
-  onChange: () => void,
+  onChange: (fafChanged: boolean) => void,
   delayMs: number = DEBOUNCE_MS,
 ): vscode.Disposable {
   const watcher = vscode.workspace.createFileSystemWatcher(
@@ -21,13 +23,20 @@ export function createWatcher(
   );
 
   let timer: ReturnType<typeof setTimeout> | undefined;
-  const fire = (): void => {
+  let fafDirty = false;
+
+  const fire = (uri?: { fsPath: string }): void => {
+    if (!uri || /(?:^|[\\/])project\.faf$/.test(uri.fsPath)) {
+      fafDirty = true;
+    }
     if (timer) {
       clearTimeout(timer);
     }
     timer = setTimeout(() => {
       timer = undefined;
-      onChange();
+      const dirty = fafDirty;
+      fafDirty = false;
+      onChange(dirty);
     }, delayMs);
   };
 

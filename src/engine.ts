@@ -12,6 +12,7 @@ import {
   readFafRaw,
   scoreFafYaml,
 } from 'faf-cli';
+import type { ScoreResult } from 'faf-cli';
 import { buildViewModel, type FafOutcome } from './model';
 
 /**
@@ -52,9 +53,13 @@ export function scoreWorkspace(root: string | undefined): FafOutcome {
 /**
  * The context card's HTML — faf-cli's single-source renderer, unmodified.
  * The webview layer injects the CSP; it does not touch the body.
+ *
+ * `score` is the already-computed `ScoreResult` from `scoreWorkspace` (stashed
+ * on the view model). Passing it skips a re-score — the only re-parse left is
+ * the cheap `readFaf` YAML load for the card body.
  */
-export function renderProjectHtml(fafPath: string): string {
+export function renderProjectHtml(fafPath: string, score?: ScoreResult): string {
   const data = readFaf(fafPath);
-  const score = scoreFafYaml(readFafRaw(fafPath));
-  return generateProjectHtml(data, score, fafPath);
+  const result = score ?? scoreFafYaml(readFafRaw(fafPath));
+  return generateProjectHtml(data, result, fafPath);
 }

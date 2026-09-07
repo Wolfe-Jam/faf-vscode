@@ -173,15 +173,17 @@ export interface MockTerminal {
   dispose(): void;
 }
 
+type WatchHandler = (uri?: { fsPath: string }) => void;
+
 export interface MockFileSystemWatcher {
   pattern: RelativePattern;
   disposed: boolean;
-  handlers: { change: Array<() => void>; create: Array<() => void>; delete: Array<() => void> };
-  onDidChange(cb: () => void): Disposable;
-  onDidCreate(cb: () => void): Disposable;
-  onDidDelete(cb: () => void): Disposable;
+  handlers: { change: WatchHandler[]; create: WatchHandler[]; delete: WatchHandler[] };
+  onDidChange(cb: WatchHandler): Disposable;
+  onDidCreate(cb: WatchHandler): Disposable;
+  onDidDelete(cb: WatchHandler): Disposable;
   dispose(): void;
-  emitChange(): void;
+  emitChange(fsPath?: string): void;
 }
 
 interface MockFolder {
@@ -431,32 +433,33 @@ export const workspace = {
 
   createFileSystemWatcher(pattern: RelativePattern): MockFileSystemWatcher {
     const handlers = {
-      change: [] as Array<() => void>,
-      create: [] as Array<() => void>,
-      delete: [] as Array<() => void>,
+      change: [] as WatchHandler[],
+      create: [] as WatchHandler[],
+      delete: [] as WatchHandler[],
     };
     const watcher: MockFileSystemWatcher = {
       pattern,
       disposed: false,
       handlers,
-      onDidChange(cb: () => void) {
+      onDidChange(cb: WatchHandler) {
         handlers.change.push(cb);
         return new Disposable(() => {});
       },
-      onDidCreate(cb: () => void) {
+      onDidCreate(cb: WatchHandler) {
         handlers.create.push(cb);
         return new Disposable(() => {});
       },
-      onDidDelete(cb: () => void) {
+      onDidDelete(cb: WatchHandler) {
         handlers.delete.push(cb);
         return new Disposable(() => {});
       },
       dispose() {
         this.disposed = true;
       },
-      emitChange() {
+      emitChange(fsPath?: string) {
+        const uri = fsPath ? { fsPath } : undefined;
         for (const cb of handlers.change) {
-          cb();
+          cb(uri);
         }
       },
     };

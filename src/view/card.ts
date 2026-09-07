@@ -41,7 +41,7 @@ let panel: vscode.WebviewPanel | undefined;
  */
 export function showCard(vm: FafViewModel, fafPath: string): void {
   const title = `FAF — ${vm.projectName}`;
-  const html = injectCsp(renderProjectHtml(fafPath));
+  const html = injectCsp(renderProjectHtml(fafPath, vm.scoreResult));
 
   if (panel) {
     panel.title = title;
@@ -62,10 +62,11 @@ export function showCard(vm: FafViewModel, fafPath: string): void {
   });
 }
 
-/** Re-render the card in place if it is open (used by the watcher). */
-export function refreshCard(fafPath: string): void {
+/** Re-render the card in place if it is open (used by the watcher). Reuses the
+ *  view model's stashed score — no re-score. */
+export function refreshCard(vm: FafViewModel): void {
   if (panel) {
-    panel.webview.html = injectCsp(renderProjectHtml(fafPath));
+    panel.webview.html = injectCsp(renderProjectHtml(vm.sourcePath, vm.scoreResult));
   }
 }
 

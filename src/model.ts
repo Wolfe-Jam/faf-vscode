@@ -57,6 +57,9 @@ export interface FafViewModel {
   /** mtime drift of the AI-context files vs `project.faf`. Undefined if the
    *  engine could not read it (never fatal to the HUD). */
   drift?: DriftReport;
+  /** The raw faf-cli score, stashed so the context-card path reuses it instead
+   *  of re-scoring (`renderProjectHtml` takes it as an optional arg). */
+  scoreResult: ScoreResult;
   inherited: boolean;
   sourcePath: string;
   /** `project.name` from the .faf, for the context-card panel title. */
@@ -149,31 +152,42 @@ export function hudGroups(slots: SlotView[]): HudGroup[] {
   });
 }
 
-/** A coarse "3d" / "5h" / "just now" from an absolute ms delta. */
-export function formatAge(ms: number): string {
-  const abs = Math.abs(ms);
-  const sec = Math.round(abs / 1000);
+/** Bare magnitude of a time delta — "2m" / "5h" / "3d", or `null` under a minute. */
+export function coarseSpan(ms: number): string | null {
+  const sec = Math.round(Math.abs(ms) / 1000);
   if (sec < 60) {
-    return 'just now';
+    return null;
   }
   const min = Math.round(sec / 60);
   if (min < 60) {
-    return `${min}m ago`;
+    return `${min}m`;
   }
   const hr = Math.round(min / 60);
   if (hr < 24) {
-    return `${hr}h ago`;
+    return `${hr}h`;
   }
-  return `${Math.round(hr / 24)}d ago`;
+  return `${Math.round(hr / 24)}d`;
+}
+
+/** A coarse "3d ago" / "5h ago" / "just now" from an absolute ms delta. */
+export function formatAge(ms: number): string {
+  const span = coarseSpan(ms);
+  return span ? `${span} ago` : 'just now';
 }
 
 /** The one-line status a drift row shows next to the file name. */
 export function driftLabel(target: DriftTarget): string {
   switch (target.status) {
-    case 'newer':
-      return target.delta_ms != null
-        ? `needs sync · ${formatAge(target.delta_ms)}`
-        : 'needs sync';
+    case 'newer': {
+      // The target is NEWER than project.faf, so the .faf needs a sync. "ago"
+      // would be backwards; render the magnitude as "… newer", and drop it
+      // under a minute so it never reads "just now newer".
+      if (target.delta_ms == null) {
+        return 'needs sync';
+      }
+      const span = coarseSpan(target.delta_ms);
+      return span ? `needs sync · ${span} newer` : 'needs sync';
+    }
     case 'older':
       return target.delta_ms != null ? `older · ${formatAge(target.delta_ms)}` : 'older';
     case 'in-sync':
@@ -194,7 +208,10 @@ export function buildViewModel(
       path,
       label: def?.label ?? def?.description ?? path,
       state,
-      category: def?.category ?? 'project',
+      // Unknown path → Stack (via GROUP_OF: universal → 'stack'), matching the
+      // stated intent. Never triggers today — `ScoreResult.slots` is the known
+      // 21, all in `SLOT_BY_PATH`.
+      category: def?.category ?? 'universal',
     };
   });
 
@@ -225,6 +242,7 @@ export function buildViewModel(
     grouped,
     hudGroups: hudGroups(slots),
     drift: extras.drift,
+    scoreResult: score,
     inherited: score.inherited ?? false,
     sourcePath: fafPath,
     projectName: extras.projectName ?? 'Project',

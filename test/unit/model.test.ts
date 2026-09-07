@@ -4,11 +4,13 @@ import { join } from 'node:path';
 import { scoreFafYaml } from 'faf-cli';
 import {
   buildViewModel,
+  driftLabel,
   formatStatusBar,
   tierGlyph,
   tierHex,
   type FafViewModel,
 } from '../../src/model';
+import type { DriftTarget } from 'faf-cli';
 
 const FIXTURES = join(import.meta.dir, '..', 'fixtures');
 
@@ -121,6 +123,38 @@ describe('formatStatusBar', () => {
     expect(text).toBe('◇ FAF 92%');
     expect(tooltip).toContain('3 to SILVER');
     expect(tooltip).toContain('11/12 slots populated');
+  });
+});
+
+describe('driftLabel', () => {
+  const t = (status: DriftTarget['status'], delta_ms: number | null): DriftTarget => ({
+    file: 'CLAUDE.md',
+    exists: status !== 'missing',
+    mtime_ms: delta_ms == null ? null : 1_000_000 + delta_ms,
+    status,
+    delta_ms,
+  });
+
+  test('newer reads "… newer", never "… ago"', () => {
+    expect(driftLabel(t('newer', 3 * 60 * 60 * 1000))).toBe('needs sync · 3h newer');
+    expect(driftLabel(t('newer', 2 * 24 * 60 * 60 * 1000))).toBe('needs sync · 2d newer');
+    expect(driftLabel(t('newer', 5 * 60 * 1000))).toBe('needs sync · 5m newer');
+    expect(driftLabel(t('newer', 3 * 60 * 60 * 1000))).not.toContain('ago');
+  });
+
+  test('newer under a minute drops the span — no "just now newer"', () => {
+    expect(driftLabel(t('newer', 4000))).toBe('needs sync');
+    expect(driftLabel(t('newer', null))).toBe('needs sync');
+  });
+
+  test('older still reads "older · Xd ago"', () => {
+    expect(driftLabel(t('older', -2 * 24 * 60 * 60 * 1000))).toBe('older · 2d ago');
+    expect(driftLabel(t('older', -45 * 60 * 1000))).toBe('older · 45m ago');
+  });
+
+  test('in-sync / missing are unchanged', () => {
+    expect(driftLabel(t('in-sync', 200))).toBe('in sync');
+    expect(driftLabel(t('missing', null))).toBe('missing');
   });
 });
 

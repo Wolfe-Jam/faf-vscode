@@ -2,8 +2,10 @@ import { afterEach, describe, expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { generateProjectHtml, readFaf, scoreFafYaml } from 'faf-cli';
+import type { ScoreResult } from 'faf-cli';
 import * as mockApi from '../mocks/vscode';
 import { buildViewModel } from '../../src/model';
+import { renderProjectHtml } from '../../src/engine';
 import { injectCsp, showCard, disposeCard } from '../../src/view/card';
 
 const WS_FAF = join(import.meta.dir, '..', 'fixtures', 'ws-trophy', 'project.faf');
@@ -56,6 +58,26 @@ describe('injectCsp', () => {
   test('the score survives the injection', () => {
     expect(out).toContain('✪ TROPHY');
     expect(out).toContain('100%');
+  });
+});
+
+describe('renderProjectHtml — threaded score (no re-score)', () => {
+  test('renders from the ScoreResult it is handed, not a fresh one', () => {
+    const real = scoreFafYaml(readFileSync(WS_FAF, 'utf-8'));
+    const faked: ScoreResult = {
+      ...real,
+      score: 42,
+      tier: { ...real.tier, name: 'YELLOW' },
+    };
+    const html = renderProjectHtml(WS_FAF, faked);
+    expect(html).toContain('42');
+    expect(html).toContain('YELLOW');
+    expect(html).not.toContain('✪ TROPHY');
+  });
+
+  test('with no score arg it falls back to scoring the file', () => {
+    const html = renderProjectHtml(WS_FAF);
+    expect(html).toContain('✪ TROPHY');
   });
 });
 

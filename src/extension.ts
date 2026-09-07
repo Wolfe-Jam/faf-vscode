@@ -40,7 +40,13 @@ export function activate(context: vscode.ExtensionContext): FafExtensionApi {
   const root = (): string | undefined =>
     vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
 
-  const refresh = (): void => {
+  /**
+   * Re-score + repaint. `fafChanged` gates the context-card re-render: a
+   * `CLAUDE.md`-only touch leaves the card's source unchanged, so skip it
+   * unless `project.faf` changed or the score actually moved.
+   */
+  const refresh = (fafChanged = true): void => {
+    const prev = current;
     current = scoreWorkspace(root());
     statusBar.render(current);
     hud.refresh(current);
@@ -51,7 +57,10 @@ export function activate(context: vscode.ExtensionContext): FafExtensionApi {
       isViewModel(current),
     );
     if (isViewModel(current)) {
-      refreshCard(current.sourcePath);
+      const prevScore = isViewModel(prev) ? prev.score : undefined;
+      if (fafChanged || current.score !== prevScore) {
+        refreshCard(current);
+      }
     }
     report(channel, current);
   };

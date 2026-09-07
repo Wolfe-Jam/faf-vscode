@@ -1,0 +1,14 @@
+faf_version: "3.0"
+frontend: TOP_LEVEL_STRAY
+project:
+  name: real-project-name
+  goal: something real
+  build: STRAY_IN_PROJECT
+human_context:
+  who: the developers
+  build: STRAY_IN_HUMAN
+stack:
+  frontend: react
+  # a comment inside the stack block
+  build: vite
+  name: STRAY_IN_STACK

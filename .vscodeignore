@@ -16,6 +16,18 @@ out-integration/**
 .gitignore
 .editorconfig
 
-# node_modules: the bundle inlines faf-cli. Keep only the external WASM kernel.
+# node_modules: the esbuild bundle inlines faf-cli's *library* (dist/index.js).
+# Keep, in addition:
+#  - faf-scoring-kernel: external WASM kernel the bundle loads at runtime.
+#  - faf-cli/dist + package.json: the CLI entry (`dist/cli.js`) the Init / Sync /
+#    DNA commands spawn with VS Code's own Node (src/faf/run.ts).
+#  - open: faf-cli/dist/cli.js has a top-level `import … from "open"` — it must
+#    resolve or `cli.js` fails to load. (commander + yaml are bundled into cli.js.)
+# The actual .vsix contents check (`vsce ls`) is Phase 4 — it can't run against
+# the bun-link symlink. If npm nests `open` under faf-cli/node_modules/, add
+# `!node_modules/faf-cli/node_modules/**` too.
 node_modules/**
 !node_modules/faf-scoring-kernel/**
+!node_modules/faf-cli/dist/**
+!node_modules/faf-cli/package.json
+!node_modules/open/**

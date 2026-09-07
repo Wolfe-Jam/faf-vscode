@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { fafOutput, disposeFafOutput } from './channel';
 import { scoreWorkspace } from './engine';
 import { isViewModel, type FafOutcome } from './model';
 import { createWatcher } from './watch';
@@ -7,6 +8,13 @@ import { HudTreeProvider, HUD_VIEW_ID } from './view/sidebar';
 import { showCard, refreshCard, disposeCard, OPEN_CARD_COMMAND } from './view/card';
 import { runSync, SYNC_COMMAND } from './view/sync';
 import { revealSlot, REVEAL_SLOT_COMMAND } from './view/reveal';
+import { runBundledFaf, ensureTrusted } from './faf/run';
+import {
+  HAS_FAF_CONTEXT,
+  INIT_COMMAND,
+  OPEN_FAF_COMMAND,
+  SHOW_DNA_COMMAND,
+} from './commands';
 
 /** The API `activate` returns — a test seam, harmless in production. */
 export interface FafExtensionApi {
@@ -21,7 +29,7 @@ export interface FafExtensionApi {
  * drives every refresh. Everything lands in `context.subscriptions`.
  */
 export function activate(context: vscode.ExtensionContext): FafExtensionApi {
-  const channel = vscode.window.createOutputChannel('FAF — Project Context');
+  const channel = fafOutput();
   const statusBar = new StatusBarController();
   const hud = new HudTreeProvider();
 
@@ -34,6 +42,11 @@ export function activate(context: vscode.ExtensionContext): FafExtensionApi {
     current = scoreWorkspace(root());
     statusBar.render(current);
     hud.refresh(current);
+    void vscode.commands.executeCommand(
+      'setContext',
+      HAS_FAF_CONTEXT,
+      isViewModel(current),
+    );
     if (isViewModel(current)) {
       refreshCard(current.sourcePath);
     }
@@ -41,11 +54,11 @@ export function activate(context: vscode.ExtensionContext): FafExtensionApi {
   };
 
   context.subscriptions.push(
-    channel,
+    { dispose: disposeFafOutput },
     statusBar,
     hud,
     vscode.window.registerTreeDataProvider(HUD_VIEW_ID, hud),
-    vscode.commands.registerCommand(REFRESH_COMMAND, refresh),
+    vscode.commands.registerCommand(REFRESH_COMMAND, () => refresh()),
     vscode.commands.registerCommand(OPEN_CARD_COMMAND, () => {
       if (isViewModel(current)) {
         showCard(current, current.sourcePath);
@@ -55,7 +68,60 @@ export function activate(context: vscode.ExtensionContext): FafExtensionApi {
         );
       }
     }),
-    vscode.commands.registerCommand(SYNC_COMMAND, () => runSync(root())),
+    vscode.commands.registerCommand(OPEN_FAF_COMMAND, async () => {
+      if (!isViewModel(current)) {
+        void vscode.window.showInformationMessage(
+          'No project.faf yet — run FAF: Initialize project.faf.',
+        );
+        return;
+      }
+      const doc = await vscode.workspace.openTextDocument(current.sourcePath);
+      await vscode.window.showTextDocument(doc);
+    }),
+    vscode.commands.registerCommand(SYNC_COMMAND, async () => {
+      await runSync(context.extensionPath, root());
+      refresh();
+    }),
+    vscode.commands.registerCommand(INIT_COMMAND, async () => {
+      const r = root();
+      if (!r) {
+        void vscode.window.showInformationMessage(
+          'Open a folder to author a project.faf.',
+        );
+        return;
+      }
+      if (!ensureTrusted()) {
+        return;
+      }
+      const { code } = await runBundledFaf(
+        context.extensionPath,
+        ['init', '--yolo'],
+        { cwd: r, title: 'Authoring project.faf…' },
+      );
+      refresh();
+      if (code !== 0) {
+        void vscode.window.showWarningMessage(
+          'FAF init did not complete — see the FAF — Project Context output.',
+        );
+      }
+    }),
+    vscode.commands.registerCommand(SHOW_DNA_COMMAND, async () => {
+      const r = root();
+      if (!r || !isViewModel(current)) {
+        void vscode.window.showInformationMessage(
+          'No project.faf in this workspace — nothing to show.',
+        );
+        return;
+      }
+      if (!ensureTrusted()) {
+        return;
+      }
+      channel.show(true);
+      await runBundledFaf(context.extensionPath, ['dna'], {
+        cwd: r,
+        title: 'Reading the DNA journey…',
+      });
+    }),
     vscode.commands.registerCommand(
       REVEAL_SLOT_COMMAND,
       (fafPath: string, slotPath: string) => revealSlot(fafPath, slotPath),
@@ -77,9 +143,10 @@ export function activate(context: vscode.ExtensionContext): FafExtensionApi {
 }
 
 export function deactivate(): void {
-  // VS Code disposes everything in context.subscriptions; the card panel is
-  // module-level state that outlives them, so drop it here.
+  // VS Code disposes everything in context.subscriptions; the card panel and
+  // the shared output channel are module-level state that outlives them.
   disposeCard();
+  disposeFafOutput();
 }
 
 function report(channel: vscode.OutputChannel, outcome: FafOutcome): void {
@@ -87,7 +154,7 @@ function report(channel: vscode.OutputChannel, outcome: FafOutcome): void {
     channel.appendLine(
       outcome.kind === 'no-workspace'
         ? 'FAF: no workspace folder open.'
-        : 'FAF: no project.faf found — run `faf init` to author one.',
+        : 'FAF: no project.faf found — run FAF: Initialize project.faf to author one.',
     );
     return;
   }

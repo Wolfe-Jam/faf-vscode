@@ -24,6 +24,12 @@ export enum ViewColumn {
   Two = 2,
 }
 
+export enum ProgressLocation {
+  SourceControl = 1,
+  Window = 10,
+  Notification = 15,
+}
+
 export class ThemeColor {
   constructor(public readonly id: string) {}
 }
@@ -50,13 +56,33 @@ export class Position {
 }
 
 export class Range {
+  readonly start: Position;
+  readonly end: Position;
   constructor(
-    public readonly start: Position,
-    public readonly end: Position,
-  ) {}
+    startOrStartLine: Position | number,
+    endOrStartChar: Position | number,
+    endLine?: number,
+    endChar?: number,
+  ) {
+    if (typeof startOrStartLine === 'number') {
+      this.start = new Position(startOrStartLine, endOrStartChar as number);
+      this.end = new Position(endLine as number, endChar as number);
+    } else {
+      this.start = startOrStartLine;
+      this.end = endOrStartChar as Position;
+    }
+  }
 }
 
 export class Selection extends Range {}
+
+export class CodeLens {
+  isResolved = true;
+  constructor(
+    public readonly range: Range,
+    public readonly command?: { title: string; command: string; arguments?: unknown[] },
+  ) {}
+}
 
 export class RelativePattern {
   constructor(
@@ -168,14 +194,19 @@ export const __items: MockStatusBarItem[] = [];
 export const __channels: MockOutputChannel[] = [];
 export const __commands = new Map<string, (...args: unknown[]) => unknown>();
 export const __trees = new Map<string, unknown>();
+export const __codeLensProviders: Array<{ selector: unknown; provider: unknown }> = [];
 export const __panels: MockWebviewPanel[] = [];
 export const __terminals: MockTerminal[] = [];
 export const __watchers: MockFileSystemWatcher[] = [];
 export const __openedDocs: string[] = [];
 export const __shownDocs: Array<{ doc: unknown; options: unknown }> = [];
 export const __infoMessages: string[] = [];
+export const __warnMessages: string[] = [];
+export const __contextKeys = new Map<string, unknown>();
+export const __progressTitles: string[] = [];
 
 let __folders: MockFolder[] | undefined;
+let __trusted = true;
 
 /** Set (or clear, with `undefined`) the mock workspace folders. */
 export function __setWorkspaceFolders(paths: string[] | undefined): void {
@@ -185,19 +216,29 @@ export function __setWorkspaceFolders(paths: string[] | undefined): void {
       : paths.map((fsPath, index) => ({ uri: { fsPath }, name: `ws${index}`, index }));
 }
 
+/** Toggle `workspace.isTrusted`. */
+export function __setTrusted(value: boolean): void {
+  __trusted = value;
+}
+
 /** Wipe all captured state between tests. */
 export function __reset(): void {
   __items.length = 0;
   __channels.length = 0;
   __commands.clear();
   __trees.clear();
+  __codeLensProviders.length = 0;
   __panels.length = 0;
   __terminals.length = 0;
   __watchers.length = 0;
   __openedDocs.length = 0;
   __shownDocs.length = 0;
   __infoMessages.length = 0;
+  __warnMessages.length = 0;
+  __contextKeys.clear();
+  __progressTitles.length = 0;
   __folders = undefined;
+  __trusted = true;
 }
 
 export const window = {
@@ -323,6 +364,41 @@ export const window = {
     __infoMessages.push(message);
     return Promise.resolve(undefined);
   },
+
+  showWarningMessage(message: string): Promise<undefined> {
+    __warnMessages.push(message);
+    return Promise.resolve(undefined);
+  },
+
+  withProgress<R>(
+    options: { title?: string },
+    task: (
+      progress: { report(value: { message?: string; increment?: number }): void },
+      token: { isCancellationRequested: boolean; onCancellationRequested(): Disposable },
+    ) => Thenable<R>,
+  ): Thenable<R> {
+    if (options.title) {
+      __progressTitles.push(options.title);
+    }
+    const progress = { report: (): void => {} };
+    const token = {
+      isCancellationRequested: false,
+      onCancellationRequested: (): Disposable => new Disposable(() => {}),
+    };
+    return Promise.resolve(task(progress, token));
+  },
+};
+
+export const languages = {
+  registerCodeLensProvider(selector: unknown, provider: unknown): Disposable {
+    __codeLensProviders.push({ selector, provider });
+    return new Disposable(() => {
+      const i = __codeLensProviders.findIndex((e) => e.provider === provider);
+      if (i >= 0) {
+        __codeLensProviders.splice(i, 1);
+      }
+    });
+  },
 };
 
 export const commands = {
@@ -333,6 +409,10 @@ export const commands = {
     });
   },
   executeCommand(command: string, ...args: unknown[]): unknown {
+    if (command === 'setContext') {
+      __contextKeys.set(args[0] as string, args[1]);
+      return Promise.resolve(undefined);
+    }
     return __commands.get(command)?.(...args);
   },
   getCommands(): Promise<string[]> {
@@ -343,6 +423,10 @@ export const commands = {
 export const workspace = {
   get workspaceFolders(): MockFolder[] | undefined {
     return __folders;
+  },
+
+  get isTrusted(): boolean {
+    return __trusted;
   },
 
   createFileSystemWatcher(pattern: RelativePattern): MockFileSystemWatcher {

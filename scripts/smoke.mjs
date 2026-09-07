@@ -155,14 +155,23 @@ const vscodeStub = {
     showTextDocument: () => Promise.resolve({}),
     showInformationMessage: () => Promise.resolve(undefined),
   },
+  ProgressLocation: { SourceControl: 1, Window: 10, Notification: 15 },
   commands: {
     registerCommand: (command, callback) => {
       commands.set(command, callback);
       return { dispose: () => commands.delete(command) };
     },
+    executeCommand: (command, ...args) => {
+      if (command === 'setContext') return Promise.resolve();
+      return commands.get(command)?.(...args);
+    },
+  },
+  languages: {
+    registerCodeLensProvider: () => ({ dispose: () => {} }),
   },
   workspace: {
     workspaceFolders: [{ uri: { fsPath: TARGET }, name: 'target', index: 0 }],
+    isTrusted: true,
     createFileSystemWatcher: () => ({
       onDidChange: () => ({ dispose: () => {} }),
       onDidCreate: () => ({ dispose: () => {} }),

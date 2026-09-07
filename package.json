@@ -28,8 +28,15 @@
   ],
   "main": "./dist/extension.js",
   "activationEvents": [
-    "workspaceContains:project.faf"
+    "workspaceContains:project.faf",
+    "onWalkthrough:faf-context.gettingStarted"
   ],
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": "limited",
+      "description": "Scoring and the context card work in untrusted workspaces; Init and Sync run the FAF CLI and are disabled until the workspace is trusted."
+    }
+  },
   "contributes": {
     "viewsContainers": {
       "activitybar": [
@@ -60,16 +67,31 @@
         "icon": "$(preview)"
       },
       {
+        "command": "faf-context.openFaf",
+        "title": "FAF: Open project.faf",
+        "icon": "$(go-to-file)"
+      },
+      {
         "command": "faf-context.sync",
         "title": "FAF: Sync Context Files",
         "icon": "$(sync)"
+      },
+      {
+        "command": "faf-context.init",
+        "title": "FAF: Initialize project.faf",
+        "icon": "$(add)"
+      },
+      {
+        "command": "faf-context.showDna",
+        "title": "FAF: Show DNA Journey",
+        "icon": "$(pulse)"
       }
     ],
     "menus": {
       "view/title": [
         {
           "command": "faf-context.openCard",
-          "when": "view == faf-context.hud",
+          "when": "view == faf-context.hud && faf-context.hasFaf",
           "group": "navigation@1"
         },
         {
@@ -95,13 +117,64 @@
           "command": "faf-context.refresh"
         },
         {
-          "command": "faf-context.openCard"
+          "command": "faf-context.openCard",
+          "when": "faf-context.hasFaf"
         },
         {
-          "command": "faf-context.sync"
+          "command": "faf-context.openFaf",
+          "when": "faf-context.hasFaf"
+        },
+        {
+          "command": "faf-context.sync",
+          "when": "faf-context.hasFaf"
+        },
+        {
+          "command": "faf-context.init",
+          "when": "!faf-context.hasFaf"
+        },
+        {
+          "command": "faf-context.showDna",
+          "when": "faf-context.hasFaf"
         }
       ]
-    }
+    },
+    "walkthroughs": [
+      {
+        "id": "faf-context.gettingStarted",
+        "title": "Get started with FAF",
+        "description": "Author your project.faf, fill the six W's, and watch the score climb.",
+        "steps": [
+          {
+            "id": "faf-context.walkthrough.init",
+            "title": "Author your project.faf",
+            "description": "FAF is your project's DNA for AI — one file, IANA-registered.\n[Author project.faf](command:faf-context.init)\nAlready have one? This step is done.",
+            "media": {
+              "markdown": "media/init.md"
+            },
+            "when": "!faf-context.hasFaf",
+            "completionEvents": [
+              "onContext:faf-context.hasFaf"
+            ]
+          },
+          {
+            "id": "faf-context.walkthrough.sixw",
+            "title": "Fill the six W's",
+            "description": "human_context — who / what / why / where / when / how — is where the score lives.\n[Open project.faf](command:faf-context.openFaf)",
+            "media": {
+              "markdown": "media/sixw.md"
+            }
+          },
+          {
+            "id": "faf-context.walkthrough.score",
+            "title": "Watch the score climb",
+            "description": "The status bar and the FAF Context sidebar track your score and tier live.\n[Open the context card](command:faf-context.openCard)",
+            "media": {
+              "markdown": "media/score.md"
+            }
+          }
+        ]
+      }
+    ]
   },
   "scripts": {
     "build": "node esbuild.js",

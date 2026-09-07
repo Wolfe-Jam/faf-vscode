@@ -30,12 +30,20 @@
   "activationEvents": [
     "workspaceContains:**/project.faf"
   ],
-  "contributes": {},
+  "contributes": {
+    "commands": [
+      {
+        "command": "faf-context.refresh",
+        "title": "FAF: Refresh Score"
+      }
+    ]
+  },
   "scripts": {
     "build": "node esbuild.js",
     "watch": "node esbuild.js --watch",
     "typecheck": "tsc --noEmit",
     "lint": "tsc --noEmit",
+    "test": "bun test test/unit",
     "smoke": "npm run build && node scripts/smoke.mjs",
     "vscode:prepublish": "node esbuild.js --production"
   },

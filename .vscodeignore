@@ -3,9 +3,11 @@
 .github/**
 src/**
 scripts/**
+test/**
 .smoke-storage/**
 esbuild.js
 tsconfig.json
+bunfig.toml
 **/*.map
 **/*.ts
 .gitignore

@@ -28,7 +28,7 @@
   ],
   "main": "./dist/extension.js",
   "activationEvents": [
-    "workspaceContains:**/project.faf"
+    "workspaceContains:project.faf"
   ],
   "contributes": {
     "viewsContainers": {

@@ -1,9 +1,12 @@
 import { afterEach, describe, expect, test } from 'bun:test';
+import { join } from 'node:path';
 import type { ExtensionContext } from 'vscode';
 import * as mockApi from '../mocks/vscode';
 import { activate, deactivate } from '../../src/extension';
 
-const CLI_REPO = '/Users/wolfejam/FAF/cli';
+// A dir fixture with a `project.faf` (copied from ~/FAF/cli, scores 100 / TROPHY)
+// — `findFafFile` returns it directly, so this is CI-portable.
+const WS_TROPHY = join(import.meta.dir, '..', 'fixtures', 'ws-trophy');
 
 interface TestContext {
   subscriptions: Array<{ dispose(): void }>;
@@ -20,7 +23,7 @@ afterEach(() => {
 
 describe('activate', () => {
   test('FAF workspace -> status bar populated, every subscription disposable', () => {
-    mockApi.__setWorkspaceFolders([CLI_REPO]);
+    mockApi.__setWorkspaceFolders([WS_TROPHY]);
     const ctx = makeContext();
 
     activate(ctx as unknown as ExtensionContext);
@@ -50,7 +53,7 @@ describe('activate', () => {
   });
 
   test('the refresh command re-scores without throwing', () => {
-    mockApi.__setWorkspaceFolders([CLI_REPO]);
+    mockApi.__setWorkspaceFolders([WS_TROPHY]);
     const ctx = makeContext();
     activate(ctx as unknown as ExtensionContext);
 

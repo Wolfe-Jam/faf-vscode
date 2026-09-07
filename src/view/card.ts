@@ -15,17 +15,21 @@ const VIEW_TYPE = 'faf-context.card';
 const CSP =
   "default-src 'none'; style-src 'unsafe-inline'; img-src data:;";
 
+/** Matches the opening `<head>` tag, with or without attributes. */
+const HEAD_OPEN = /<head[^>]*>/i;
+
 /**
- * Splice a strict Content-Security-Policy `<meta>` into the rendered card as
- * the first child of `<head>`. Pure — string in, string out.
+ * Splice a strict Content-Security-Policy `<meta>` in as the first child of
+ * `<head>`. Pure — string in, string out. faf-cli's renderer always emits a
+ * `<head>`; if that ever changes we throw rather than hand back an
+ * unprotected webview.
  */
 export function injectCsp(html: string): string {
-  const meta = `<meta http-equiv="Content-Security-Policy" content="${CSP}">`;
-  if (html.includes('<head>')) {
-    return html.replace('<head>', `<head>\n${meta}`);
+  if (!HEAD_OPEN.test(html)) {
+    throw new Error('context card HTML has no <head> — cannot apply a CSP');
   }
-  // No <head> (unexpected) — prepend so the policy still applies.
-  return `${meta}\n${html}`;
+  const meta = `<meta http-equiv="Content-Security-Policy" content="${CSP}">`;
+  return html.replace(HEAD_OPEN, (head) => `${head}\n${meta}`);
 }
 
 /** The single reused context-card panel. */
@@ -65,8 +69,8 @@ export function refreshCard(fafPath: string): void {
   }
 }
 
-/** Test seam — dispose + forget the panel. */
-export function __disposeCard(): void {
+/** Dispose + forget the card panel. Called on `deactivate`; also a test seam. */
+export function disposeCard(): void {
   panel?.dispose();
   panel = undefined;
 }

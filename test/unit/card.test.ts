@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { generateProjectHtml, readFaf, scoreFafYaml } from 'faf-cli';
 import * as mockApi from '../mocks/vscode';
 import { buildViewModel } from '../../src/model';
-import { injectCsp, showCard, __disposeCard } from '../../src/view/card';
+import { injectCsp, showCard, disposeCard } from '../../src/view/card';
 
 const WS_FAF = join(import.meta.dir, '..', 'fixtures', 'ws-trophy', 'project.faf');
 
@@ -17,7 +17,7 @@ function cardHtml(): string {
 }
 
 afterEach(() => {
-  __disposeCard();
+  disposeCard();
   mockApi.__reset();
 });
 
@@ -31,10 +31,26 @@ describe('injectCsp', () => {
     expect(raw).not.toContain('<link');
   });
 
+  test("faf-cli's renderer emits a <head> we can inject into", () => {
+    expect(raw).toMatch(/<head[^>]*>/i);
+    expect(() => injectCsp(raw)).not.toThrow();
+  });
+
   test('a strict CSP meta lands as the first child of <head>', () => {
     expect(out).toContain(
       `<head>\n<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src data:;">`,
     );
+  });
+
+  test('injects after a <head> that carries attributes', () => {
+    const withAttrs = injectCsp('<html><head lang="en"><title>x</title></head></html>');
+    expect(withAttrs).toContain(
+      `<head lang="en">\n<meta http-equiv="Content-Security-Policy"`,
+    );
+  });
+
+  test('throws (not a silently unprotected webview) when there is no <head>', () => {
+    expect(() => injectCsp('<html><body>hi</body></html>')).toThrow(/no <head>/);
   });
 
   test('the score survives the injection', () => {

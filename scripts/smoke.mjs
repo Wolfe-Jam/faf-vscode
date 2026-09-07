@@ -10,7 +10,9 @@ import assert from 'node:assert/strict';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(here, '..');
-const TARGET = process.env.FAF_TARGET ?? '/Users/wolfejam/FAF/cli';
+// The ws-trophy fixture (a copy of ~/FAF/cli's project.faf) scores 100 / TROPHY
+// and is CI-portable. Override with FAF_TARGET to point at any real repo.
+const TARGET = process.env.FAF_TARGET ?? join(repoRoot, 'test', 'fixtures', 'ws-trophy');
 
 const lines = [];
 const items = [];

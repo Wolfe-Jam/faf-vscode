@@ -4,7 +4,7 @@ import { isViewModel, type FafOutcome } from './model';
 import { createWatcher } from './watch';
 import { StatusBarController, REFRESH_COMMAND } from './view/statusBar';
 import { HudTreeProvider, HUD_VIEW_ID } from './view/sidebar';
-import { showCard, refreshCard, OPEN_CARD_COMMAND } from './view/card';
+import { showCard, refreshCard, disposeCard, OPEN_CARD_COMMAND } from './view/card';
 import { runSync, SYNC_COMMAND } from './view/sync';
 import { revealSlot, REVEAL_SLOT_COMMAND } from './view/reveal';
 
@@ -77,7 +77,9 @@ export function activate(context: vscode.ExtensionContext): FafExtensionApi {
 }
 
 export function deactivate(): void {
-  // VS Code disposes everything pushed to context.subscriptions.
+  // VS Code disposes everything in context.subscriptions; the card panel is
+  // module-level state that outlives them, so drop it here.
+  disposeCard();
 }
 
 function report(channel: vscode.OutputChannel, outcome: FafOutcome): void {

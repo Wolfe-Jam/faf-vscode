@@ -31,7 +31,20 @@ describe('activate', () => {
     expect(mockApi.__items).toHaveLength(1);
     expect(mockApi.__items[0]!.text).toBe('✪ FAF 100%');
     expect(mockApi.__items[0]!.shown).toBe(true);
-    expect(mockApi.__commands.has('faf-context.refresh')).toBe(true);
+    for (const id of [
+      'faf-context.refresh',
+      'faf-context.openCard',
+      'faf-context.openFaf',
+      'faf-context.sync',
+      'faf-context.init',
+      'faf-context.showDna',
+      'faf-context.revealSlot',
+    ]) {
+      expect(mockApi.__commands.has(id)).toBe(true);
+    }
+    // CodeLens provider registered for project.faf; hasFaf context key set
+    expect(mockApi.__codeLensProviders).toHaveLength(1);
+    expect(mockApi.__contextKeys.get('faf-context.hasFaf')).toBe(true);
     expect(mockApi.__channels[0]!.lines.some((l) => l.includes('100% TROPHY'))).toBe(true);
 
     expect(ctx.subscriptions.length).toBeGreaterThanOrEqual(3);
@@ -49,6 +62,7 @@ describe('activate', () => {
 
     expect(() => activate(ctx as unknown as ExtensionContext)).not.toThrow();
     expect(mockApi.__items[0]?.shown ?? false).toBe(false);
+    expect(mockApi.__contextKeys.get('faf-context.hasFaf')).toBe(false);
     expect(mockApi.__channels[0]!.lines).toContain('FAF: no workspace folder open.');
   });
 

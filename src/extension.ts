@@ -8,6 +8,7 @@ import { HudTreeProvider, HUD_VIEW_ID } from './view/sidebar';
 import { showCard, refreshCard, disposeCard, OPEN_CARD_COMMAND } from './view/card';
 import { runSync, SYNC_COMMAND } from './view/sync';
 import { revealSlot, REVEAL_SLOT_COMMAND } from './view/reveal';
+import { FafCodeLensProvider } from './view/codelens';
 import { runBundledFaf, ensureTrusted } from './faf/run';
 import {
   HAS_FAF_CONTEXT,
@@ -32,6 +33,7 @@ export function activate(context: vscode.ExtensionContext): FafExtensionApi {
   const channel = fafOutput();
   const statusBar = new StatusBarController();
   const hud = new HudTreeProvider();
+  const codeLens = new FafCodeLensProvider();
 
   let current: FafOutcome = { kind: 'no-workspace' };
 
@@ -42,6 +44,7 @@ export function activate(context: vscode.ExtensionContext): FafExtensionApi {
     current = scoreWorkspace(root());
     statusBar.render(current);
     hud.refresh(current);
+    codeLens.setModel(current);
     void vscode.commands.executeCommand(
       'setContext',
       HAS_FAF_CONTEXT,
@@ -57,7 +60,12 @@ export function activate(context: vscode.ExtensionContext): FafExtensionApi {
     { dispose: disposeFafOutput },
     statusBar,
     hud,
+    codeLens,
     vscode.window.registerTreeDataProvider(HUD_VIEW_ID, hud),
+    vscode.languages.registerCodeLensProvider(
+      { pattern: '**/project.faf' },
+      codeLens,
+    ),
     vscode.commands.registerCommand(REFRESH_COMMAND, () => refresh()),
     vscode.commands.registerCommand(OPEN_CARD_COMMAND, () => {
       if (isViewModel(current)) {

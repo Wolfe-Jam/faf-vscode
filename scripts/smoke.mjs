@@ -16,11 +16,75 @@ const lines = [];
 const items = [];
 const commands = new Map();
 
+const trees = new Map();
+const panels = [];
+
 const vscodeStub = {
   StatusBarAlignment: { Left: 1, Right: 2 },
+  Disposable: class Disposable {
+    constructor(onDispose) {
+      this._d = onDispose;
+    }
+    dispose() {
+      this._d?.();
+    }
+  },
+  TreeItemCollapsibleState: { None: 0, Collapsed: 1, Expanded: 2 },
+  ViewColumn: { Active: -1, Beside: -2, One: 1, Two: 2 },
   ThemeColor: class ThemeColor {
     constructor(id) {
       this.id = id;
+    }
+  },
+  ThemeIcon: class ThemeIcon {
+    constructor(id, color) {
+      this.id = id;
+      this.color = color;
+    }
+  },
+  TreeItem: class TreeItem {
+    constructor(label, collapsibleState = 0) {
+      this.label = label;
+      this.collapsibleState = collapsibleState;
+    }
+  },
+  Position: class Position {
+    constructor(line, character) {
+      this.line = line;
+      this.character = character;
+    }
+  },
+  Range: class Range {
+    constructor(start, end) {
+      this.start = start;
+      this.end = end;
+    }
+  },
+  Selection: class Selection {
+    constructor(start, end) {
+      this.start = start;
+      this.end = end;
+    }
+  },
+  RelativePattern: class RelativePattern {
+    constructor(base, pattern) {
+      this.base = base;
+      this.pattern = pattern;
+    }
+  },
+  EventEmitter: class EventEmitter {
+    constructor() {
+      this._l = new Set();
+      this.event = (listener) => {
+        this._l.add(listener);
+        return { dispose: () => this._l.delete(listener) };
+      };
+    }
+    fire(data) {
+      for (const l of [...this._l]) l(data);
+    }
+    dispose() {
+      this._l.clear();
     }
   },
   window: {
@@ -56,6 +120,38 @@ const vscodeStub = {
       items.push(item);
       return item;
     },
+    registerTreeDataProvider: (id, provider) => {
+      trees.set(id, provider);
+      return { dispose: () => trees.delete(id) };
+    },
+    createWebviewPanel: (viewType, title, _show, options) => {
+      const panel = {
+        viewType,
+        title,
+        options,
+        webview: { html: '' },
+        reveal() {},
+        onDidDispose() {
+          return { dispose: () => {} };
+        },
+        dispose() {
+          this.disposed = true;
+        },
+      };
+      panels.push(panel);
+      return panel;
+    },
+    createTerminal: (options) => ({
+      name: options.name,
+      show() {},
+      sendText() {},
+      dispose() {},
+    }),
+    get terminals() {
+      return [];
+    },
+    showTextDocument: () => Promise.resolve({}),
+    showInformationMessage: () => Promise.resolve(undefined),
   },
   commands: {
     registerCommand: (command, callback) => {
@@ -65,6 +161,13 @@ const vscodeStub = {
   },
   workspace: {
     workspaceFolders: [{ uri: { fsPath: TARGET }, name: 'target', index: 0 }],
+    createFileSystemWatcher: () => ({
+      onDidChange: () => ({ dispose: () => {} }),
+      onDidCreate: () => ({ dispose: () => {} }),
+      onDidDelete: () => ({ dispose: () => {} }),
+      dispose() {},
+    }),
+    openTextDocument: (p) => Promise.resolve({ path: p }),
   },
 };
 
@@ -95,13 +198,25 @@ console.log();
 assert.equal(items.length, 1, `expected 1 status bar item, got ${items.length}`);
 assert.equal(items[0].text, '✪ FAF 100%', `unexpected status bar text: ${items[0].text}`);
 assert.equal(items[0].shown, true, 'status bar item was not shown');
-assert.equal(items[0].command, 'faf-context.refresh', 'refresh command not wired');
+assert.equal(items[0].command, 'faf-context.openCard', 'status bar not wired to openCard');
 assert.ok(commands.has('faf-context.refresh'), 'refresh command not registered');
+assert.ok(commands.has('faf-context.openCard'), 'openCard command not registered');
+assert.ok(commands.has('faf-context.sync'), 'sync command not registered');
+assert.ok(trees.has('faf-context.hud'), 'HUD tree data provider not registered');
 assert.equal(context.subscriptions.length >= 3, true, 'expected >= 3 subscriptions');
 
 // Re-run through the command path.
 commands.get('faf-context.refresh')();
 assert.equal(items[0].text, '✪ FAF 100%', 'refresh command changed the score');
+
+// The context card renders through the bundled generateProjectHtml.
+commands.get('faf-context.openCard')();
+assert.equal(panels.length, 1, 'openCard did not create a webview panel');
+assert.ok(
+  panels[0].webview.html.includes('Content-Security-Policy'),
+  'card HTML missing the CSP meta',
+);
+assert.ok(panels[0].webview.html.includes('TROPHY'), 'card HTML missing the score');
 
 ext.deactivate();
 for (const sub of context.subscriptions) sub.dispose?.();

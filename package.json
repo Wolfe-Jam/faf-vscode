@@ -27,16 +27,82 @@
     "agents-md"
   ],
   "main": "./dist/extension.js",
+  "icon": "resources/faf-context.svg",
   "activationEvents": [
     "workspaceContains:**/project.faf"
   ],
   "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "faf-context",
+          "title": "FAF Context",
+          "icon": "resources/faf-context.svg"
+        }
+      ]
+    },
+    "views": {
+      "faf-context": [
+        {
+          "id": "faf-context.hud",
+          "name": "Project Context"
+        }
+      ]
+    },
     "commands": [
       {
         "command": "faf-context.refresh",
-        "title": "FAF: Refresh Score"
+        "title": "FAF: Refresh Score",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "faf-context.openCard",
+        "title": "FAF: Open Context Card",
+        "icon": "$(preview)"
+      },
+      {
+        "command": "faf-context.sync",
+        "title": "FAF: Sync Context Files",
+        "icon": "$(sync)"
       }
-    ]
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "faf-context.openCard",
+          "when": "view == faf-context.hud",
+          "group": "navigation@1"
+        },
+        {
+          "command": "faf-context.refresh",
+          "when": "view == faf-context.hud",
+          "group": "navigation@2"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "faf-context.sync",
+          "when": "view == faf-context.hud && viewItem == faf.drift",
+          "group": "inline"
+        },
+        {
+          "command": "faf-context.openCard",
+          "when": "view == faf-context.hud && viewItem == faf.header",
+          "group": "inline"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "faf-context.refresh"
+        },
+        {
+          "command": "faf-context.openCard"
+        },
+        {
+          "command": "faf-context.sync"
+        }
+      ]
+    }
   },
   "scripts": {
     "build": "node esbuild.js",
@@ -44,15 +110,19 @@
     "typecheck": "tsc --noEmit",
     "lint": "tsc --noEmit",
     "test": "bun test test/unit",
+    "test:integration": "tsc -p tsconfig.integration.json && vscode-test",
     "smoke": "npm run build && node scripts/smoke.mjs",
     "vscode:prepublish": "node esbuild.js --production"
   },
   "dependencies": {
-    "faf-cli": "7.10.1"
+    "faf-cli": "^7.11.0"
   },
   "devDependencies": {
+    "@types/mocha": "^10.0.7",
     "@types/node": "^22.20.1",
     "@types/vscode": "^1.90.0",
+    "@vscode/test-cli": "^0.0.10",
+    "@vscode/test-electron": "^2.4.1",
     "esbuild": "^0.24.2",
     "typescript": "^5.9.3"
   }

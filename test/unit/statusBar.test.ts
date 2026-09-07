@@ -18,13 +18,13 @@ afterEach(() => {
 });
 
 describe('StatusBarController', () => {
-  test('creates one Right-aligned item wired to the refresh command', () => {
+  test('creates one Right-aligned item wired to the open-card command', () => {
     new StatusBarController();
     const item = mockApi.__items[0]!;
     expect(mockApi.__items).toHaveLength(1);
     expect(item.alignment).toBe(mockApi.StatusBarAlignment.Right);
     expect(item.priority).toBe(100);
-    expect(item.command).toBe('faf-context.refresh');
+    expect(item.command).toBe('faf-context.openCard');
   });
 
   test('render(trophy) -> "✪ FAF 100%", brand hex, shown', () => {

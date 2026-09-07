@@ -7,7 +7,10 @@ test/**
 .smoke-storage/**
 esbuild.js
 tsconfig.json
+tsconfig.integration.json
 bunfig.toml
+.vscode-test.mjs
+out-integration/**
 **/*.map
 **/*.ts
 .gitignore

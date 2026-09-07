@@ -1,6 +1,13 @@
 node_modules/
 dist/
+out-integration/
+.vscode-test/
 *.vsix
 .smoke-storage/
 *.log
 .DS_Store
+
+# Local dev only: `bun link faf-cli` writes this to point at ~/FAF/cli's build.
+# The canonical lockfile is package-lock.json; Phase 4 regenerates it against
+# the published faf-cli 7.11.0.
+bun.lock

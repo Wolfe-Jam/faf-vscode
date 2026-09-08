@@ -5,6 +5,14 @@ All notable changes to the **FAF — Project Context** extension are documented 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.1] - 2026-09-08
+
+### Added
+
+- **Marketplace screenshot** — the README now leads with a screenshot of the
+  sidebar and the rendered context card side by side, scoring `faf-cli` itself
+  at 100% Trophy.
+
 ## [0.1.0] - 2026-09-08
 
 First public release. The extension is a human-facing HUD for your
@@ -49,4 +57,5 @@ AI's half is the [`faf-mcp`](https://www.npmjs.com/package/faf-mcp) server.
   sidebar, the card, and drift work in an untrusted workspace; Init, Sync, and
   DNA warn and no-op until the workspace is trusted.
 
+[0.1.1]: https://github.com/Wolfe-Jam/faf-vscode/releases/tag/v0.1.1
 [0.1.0]: https://github.com/Wolfe-Jam/faf-vscode/releases/tag/v0.1.0

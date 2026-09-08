@@ -23,11 +23,13 @@ out-integration/**
 #    DNA commands spawn with VS Code's own Node (src/faf/run.ts).
 #  - open: faf-cli/dist/cli.js has a top-level `import … from "open"` — it must
 #    resolve or `cli.js` fails to load. (commander + yaml are bundled into cli.js.)
-# The actual .vsix contents check (`vsce ls`) is Phase 4 — it can't run against
-# the bun-link symlink. If npm nests `open` under faf-cli/node_modules/, add
-# `!node_modules/faf-cli/node_modules/**` too.
+# Phase 4a verified against the published faf-cli 7.11.0: npm hoists `open`
+# top-level (no faf-cli/node_modules/), so no nested-open negation is needed.
+# vsce treats a `!` negation as a blanket override, so keep the negations
+# narrow: `dist/*.js` re-includes only cli.js (spawned) + index.js (resolve
+# anchor), NOT faf-cli's 2.7 MB of shipped .js.map or its dist/**/*.d.ts.
 node_modules/**
 !node_modules/faf-scoring-kernel/**
-!node_modules/faf-cli/dist/**
+!node_modules/faf-cli/dist/*.js
 !node_modules/faf-cli/package.json
 !node_modules/open/**

@@ -34,6 +34,13 @@ export class StatusBarController {
     const { text, tooltip } = formatStatusBar(outcome);
     this.item.text = text;
     this.item.tooltip = tooltip;
+    // Raw brand hex for the top four tiers (see model.ts TIER_HEX). Checked for
+    // legibility across Dark+, Light+, and both high-contrast themes: the
+    // orange (#FF6B35) and cyan (#00D4D4) read clearly; cyanDeep (#0E8C8C,
+    // Bronze) is the quietest but still legible on a short glyph+score label,
+    // and the tooltip repeats the tier in theme-default text. Kept as hex
+    // deliberately — the tier colour is a FAF brand signal, and there is no
+    // semantic ThemeColor for "status-bar item foreground by grade".
     this.item.color = outcome.tierHex ?? undefined;
     this.shownText = text;
     this.item.show();

@@ -1,0 +1,82 @@
+# 4b: create VSCE_PAT + OVSX_PAT repo secrets, then push a v* tag to publish.
+#
+# Until both secrets exist the publish steps are skipped (see the `if:` guards),
+# so a `v*` tag builds and packages the .vsix as an artifact but publishes
+# nowhere. This workflow is UNARMED by design.
+
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      VSCE_PAT: ${{ secrets.VSCE_PAT }}
+      OVSX_PAT: ${{ secrets.OVSX_PAT }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Unit tests
+        run: bun test test/unit
+
+      - name: Build
+        run: npm run build
+
+      - name: Package
+        run: npx @vscode/vsce package
+
+      # Guard against a broken runtime dep tree in the .vsix (e.g. `open`'s
+      # transitive deps missing → cli.js DOA). Extract and run the bundled CLI.
+      - name: Verify the packaged CLI runs
+        run: |
+          mkdir _vsix && unzip -q faf-context-*.vsix -d _vsix
+          expected=$(node -p "require('./node_modules/faf-cli/package.json').version")
+          actual=$(ELECTRON_RUN_AS_NODE=1 node "_vsix/extension/node_modules/faf-cli/dist/cli.js" --version)
+          echo "expected faf-cli $expected, packaged $actual"
+          test "$actual" = "$expected"
+
+      - name: Upload the .vsix artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: vsix
+          path: faf-context-*.vsix
+
+      # --- Publish. Skipped until the 4b secrets exist. ---
+
+      - name: Publish to the VS Code Marketplace
+        if: ${{ env.VSCE_PAT != '' }}
+        run: npx @vscode/vsce publish -p "$VSCE_PAT"
+
+      - name: Publish to Open VSX
+        if: ${{ env.OVSX_PAT != '' }}
+        run: npx ovsx publish faf-context-*.vsix -p "$OVSX_PAT"
+
+      - name: GitHub Release
+        if: ${{ env.VSCE_PAT != '' }}
+        uses: softprops/action-gh-release@v2
+        with:
+          files: faf-context-*.vsix
+          generate_release_notes: true

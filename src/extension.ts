@@ -16,13 +16,9 @@ import {
   OPEN_FAF_COMMAND,
   SHOW_DNA_COMMAND,
 } from './commands';
+import type { FafExtensionApi } from './api';
 
-/** The API `activate` returns — a test seam, harmless in production. */
-export interface FafExtensionApi {
-  statusBarText(): string | undefined;
-  hud: HudTreeProvider;
-  outcome(): FafOutcome;
-}
+export type { FafExtensionApi };
 
 /**
  * Wire the HUD: output channel, status-bar item, sidebar tree, the file

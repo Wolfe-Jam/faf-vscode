@@ -75,6 +75,10 @@ export class FafCodeLensProvider implements vscode.CodeLensProvider {
  * section's scored (non-ignored) slot count and `glyph` is ● when the section
  * has no gaps, ○ when it does. Click reveals the first empty slot, or is inert
  * when the section is full.
+ *
+ * When every slot in the section is `slotignored` (`active === 0` — e.g. a
+ * pure-backend project's Stack, where all frontend slots are ignored) there is
+ * nothing to fill and nothing to score: render "not scored", never "0/0".
  */
 function lensCommand(
   vm: FafViewModel,
@@ -82,6 +86,9 @@ function lensCommand(
   label: string,
 ): vscode.Command {
   const active = group.populated + group.empty;
+  if (active === 0) {
+    return { title: `— ${label} — not scored for this project`, command: '' };
+  }
   const glyph = group.empty === 0 ? '●' : '○';
   const title = `${glyph} ${label} — ${group.populated}/${active} · ${group.empty} empty`;
 

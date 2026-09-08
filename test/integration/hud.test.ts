@@ -1,6 +1,6 @@
 import * as assert from 'node:assert/strict';
 import * as vscode from 'vscode';
-import type { FafExtensionApi } from '../../src/extension';
+import type { FafExtensionApi } from '../../src/api';
 
 // Tier 2 (Engine) — runs inside a real VS Code extension host with
 // test/fixtures/ws-trophy as the workspace folder (see .vscode-test.mjs).

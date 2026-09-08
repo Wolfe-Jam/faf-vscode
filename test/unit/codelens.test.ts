@@ -38,12 +38,14 @@ describe('FafCodeLensProvider — trophy.faf', () => {
   test('titles carry the section fill tallies', () => {
     expect(lenses.map((l) => l.command?.title)).toEqual([
       '● Project — 3/3 · 0 empty',
-      '● Stack — 0/0 · 0 empty',
+      // trophy.faf is a CLI project — every Stack slot is slotignored, so the
+      // section is n/a rather than "0/0".
+      '— Stack — not scored for this project',
       '● Human Context — 6/6 · 0 empty',
     ]);
   });
 
-  test('a full section has an inert command (no navigation)', () => {
+  test('a full (or n/a) section has an inert command (no navigation)', () => {
     expect(lenses.every((l) => l.command?.command === '')).toBe(true);
   });
 });

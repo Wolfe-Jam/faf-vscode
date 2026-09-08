@@ -2,7 +2,7 @@
   "name": "faf-context",
   "displayName": "FAF — Project Context",
   "description": "Show where your project.faf stands — score, tier, drift — and render its context card, without leaving the editor.",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "publisher": "faf",
   "license": "MIT",
   "icon": "resources/icon.png",
@@ -97,6 +97,11 @@
         "command": "faf-context.showDna",
         "title": "FAF: Show DNA Journey",
         "icon": "$(pulse)"
+      },
+      {
+        "command": "faf-context.scoreGithubRepo",
+        "title": "FAF: Score a GitHub Repo",
+        "icon": "$(github)"
       }
     ],
     "menus": {
@@ -147,6 +152,9 @@
         {
           "command": "faf-context.showDna",
           "when": "faf-context.hasFaf"
+        },
+        {
+          "command": "faf-context.scoreGithubRepo"
         }
       ]
     },

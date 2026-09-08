@@ -3,7 +3,7 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { renderProjectHtml, scoreWorkspace } from '../../src/engine';
+import { renderProjectHtml, scoreExternalFaf, scoreWorkspace } from '../../src/engine';
 import { isViewModel } from '../../src/model';
 
 // A dir fixture — `findFafFile` returns `<dir>/project.faf` directly (it checks
@@ -74,6 +74,17 @@ describe('scoreWorkspace', () => {
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
+  });
+});
+
+describe('scoreExternalFaf', () => {
+  test('scores a standalone .faf file with no drift (FAF: Score a GitHub Repo)', () => {
+    const vm = scoreExternalFaf(WS_FAF);
+    expect(vm.score).toBe(100);
+    expect(vm.tierName).toBe('TROPHY');
+    expect(vm.projectName).toBe('faf-cli');
+    expect(vm.sourcePath).toBe(WS_FAF);
+    expect(vm.drift).toBeUndefined();
   });
 });
 

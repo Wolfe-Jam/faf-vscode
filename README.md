@@ -1,5 +1,9 @@
 # FAF — Project Context
 
+[![VS Code Marketplace](https://img.shields.io/visual-studio-marketplace/v/faf.faf-context?label=VS%20Code%20Marketplace&color=00D4D4)](https://marketplace.visualstudio.com/items?itemName=faf.faf-context)
+[![Installs](https://img.shields.io/visual-studio-marketplace/i/faf.faf-context?color=00D4D4)](https://marketplace.visualstudio.com/items?itemName=faf.faf-context)
+[![Open VSX](https://img.shields.io/open-vsx/v/faf/faf-context?label=Open%20VSX&color=FF6B35)](https://open-vsx.org/extension/faf/faf-context)
+
 A human-facing HUD for your `project.faf`, inside the editor. Score, tier, and
 drift at a glance; the context card rendered without leaving VS Code.
 
@@ -32,6 +36,10 @@ AI. This extension is the developer's viewport onto it. The AI's half is
   walkthrough ties them together.
 - **Watch** — `project.faf` and the four context files are watched; any change
   re-scores the HUD once, debounced 150 ms.
+- **FAF: Score a GitHub Repo** — prompt for any public GitHub URL, score it via
+  the bundled CLI, and open the result in the same context-card webview.
+  Nothing touches your workspace; the clone happens in a temp dir that's
+  cleaned up immediately after.
 
 ## Install
 

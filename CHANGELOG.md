@@ -5,6 +5,17 @@ All notable changes to the **FAF — Project Context** extension are documented 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.2] - 2026-09-08
+
+### Added
+
+- **FAF: Score a GitHub Repo** — prompt for any public GitHub URL, score it
+  via the bundled CLI (`faf git`), and open the result in the same
+  context-card webview used for your own workspace. The clone happens in a
+  temp dir, cleaned up immediately after.
+- **README badges** — live VS Code Marketplace version and install count,
+  and the Open VSX version.
+
 ## [0.1.1] - 2026-09-08
 
 ### Added
@@ -57,5 +68,6 @@ AI's half is the [`faf-mcp`](https://www.npmjs.com/package/faf-mcp) server.
   sidebar, the card, and drift work in an untrusted workspace; Init, Sync, and
   DNA warn and no-op until the workspace is trusted.
 
+[0.1.2]: https://github.com/Wolfe-Jam/faf-vscode/releases/tag/v0.1.2
 [0.1.1]: https://github.com/Wolfe-Jam/faf-vscode/releases/tag/v0.1.1
 [0.1.0]: https://github.com/Wolfe-Jam/faf-vscode/releases/tag/v0.1.0

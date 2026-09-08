@@ -5,6 +5,7 @@ export const OPEN_FAF_COMMAND = 'faf-context.openFaf';
 export const SYNC_COMMAND = 'faf-context.sync';
 export const INIT_COMMAND = 'faf-context.init';
 export const SHOW_DNA_COMMAND = 'faf-context.showDna';
+export const SCORE_GITHUB_COMMAND = 'faf-context.scoreGithubRepo';
 /** Internal — wired via `registerCommand`, deliberately not in the palette. */
 export const REVEAL_SLOT_COMMAND = 'faf-context.revealSlot';
 

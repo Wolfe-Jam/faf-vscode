@@ -1,6 +1,9 @@
 import * as vscode from 'vscode';
+import { mkdtempSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { fafOutput, disposeFafOutput } from './channel';
-import { scoreWorkspace } from './engine';
+import { scoreExternalFaf, scoreWorkspace } from './engine';
 import { isViewModel, type FafOutcome } from './model';
 import { createWatcher } from './watch';
 import { StatusBarController, REFRESH_COMMAND } from './view/statusBar';
@@ -14,6 +17,7 @@ import {
   HAS_FAF_CONTEXT,
   INIT_COMMAND,
   OPEN_FAF_COMMAND,
+  SCORE_GITHUB_COMMAND,
   SHOW_DNA_COMMAND,
 } from './commands';
 import type { FafExtensionApi } from './api';
@@ -139,6 +143,42 @@ export function activate(context: vscode.ExtensionContext): FafExtensionApi {
       REVEAL_SLOT_COMMAND,
       (fafPath: string, slotPath: string) => revealSlot(fafPath, slotPath),
     ),
+    vscode.commands.registerCommand(SCORE_GITHUB_COMMAND, async () => {
+      const url = await vscode.window.showInputBox({
+        title: 'Score a GitHub Repo',
+        prompt: 'Any public GitHub repo URL',
+        placeHolder: 'https://github.com/owner/repo',
+        validateInput: (v) => (v.trim().length === 0 ? 'A URL is required.' : undefined),
+      });
+      if (!url) {
+        return;
+      }
+      if (!ensureTrusted()) {
+        return;
+      }
+      const tmpDir = mkdtempSync(join(tmpdir(), 'faf-github-'));
+      const tmpFaf = join(tmpDir, 'project.faf');
+      try {
+        const { code } = await runBundledFaf(
+          context.extensionPath,
+          ['git', url.trim(), '--output', tmpFaf, '--force'],
+          { cwd: tmpDir, title: `Scoring ${url}…` },
+        );
+        if (code !== 0) {
+          void vscode.window.showWarningMessage(
+            `FAF could not score ${url} — see the FAF — Project Context output.`,
+          );
+          return;
+        }
+        showCard(scoreExternalFaf(tmpFaf), tmpFaf);
+      } finally {
+        try {
+          rmSync(tmpDir, { recursive: true, force: true });
+        } catch {
+          // best-effort cleanup — the OS temp dir gets swept regardless
+        }
+      }
+    }),
   );
 
   const ws = root();

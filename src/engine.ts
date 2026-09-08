@@ -13,7 +13,7 @@ import {
   scoreFafYaml,
 } from 'faf-cli';
 import type { ScoreResult } from 'faf-cli';
-import { buildViewModel, type FafOutcome } from './model';
+import { buildViewModel, type FafOutcome, type FafViewModel } from './model';
 
 /**
  * Locate + score the workspace's `project.faf`, and read its context-file drift.
@@ -48,6 +48,25 @@ export function scoreWorkspace(root: string | undefined): FafOutcome {
   }
 
   return buildViewModel(score, fafPath, { drift, projectName });
+}
+
+/**
+ * Score a standalone `.faf` file that is not the workspace's own —
+ * `FAF: Score a GitHub Repo` writes one to a temp dir via the bundled CLI's
+ * `faf git` and hands it here. No drift (there is no adjacent CLAUDE.md etc.
+ * to compare against) and no workspace root.
+ */
+export function scoreExternalFaf(fafPath: string): FafViewModel {
+  const score = scoreFafYaml(readFafRaw(fafPath));
+
+  let projectName: string | undefined;
+  try {
+    projectName = readFaf(fafPath).project?.name;
+  } catch {
+    projectName = undefined;
+  }
+
+  return buildViewModel(score, fafPath, { projectName });
 }
 
 /**

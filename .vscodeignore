@@ -16,20 +16,34 @@ out-integration/**
 .gitignore
 .editorconfig
 
-# node_modules: the esbuild bundle inlines faf-cli's *library* (dist/index.js).
-# Keep, in addition:
-#  - faf-scoring-kernel: external WASM kernel the bundle loads at runtime.
-#  - faf-cli/dist + package.json: the CLI entry (`dist/cli.js`) the Init / Sync /
-#    DNA commands spawn with VS Code's own Node (src/faf/run.ts).
-#  - open: faf-cli/dist/cli.js has a top-level `import … from "open"` — it must
-#    resolve or `cli.js` fails to load. (commander + yaml are bundled into cli.js.)
-# Phase 4a verified against the published faf-cli 7.11.0: npm hoists `open`
-# top-level (no faf-cli/node_modules/), so no nested-open negation is needed.
-# vsce treats a `!` negation as a blanket override, so keep the negations
-# narrow: `dist/*.js` re-includes only cli.js (spawned) + index.js (resolve
-# anchor), NOT faf-cli's 2.7 MB of shipped .js.map or its dist/**/*.d.ts.
+# node_modules: the esbuild bundle inlines faf-cli's *library* (dist/index.js),
+# so this is a blanket ignore with an explicit allow-list. Keep:
+#  - faf-scoring-kernel: the external WASM kernel the bundle loads at runtime.
+#  - faf-cli/dist/*.js + package.json: cli.js is spawned by Init / Sync / DNA
+#    (src/faf/run.ts); index.js is the require.resolve anchor. `dist/*.js`
+#    (not `dist/**`) drops faf-cli's 2.7 MB of .js.map and its dist/**/*.d.ts.
+#  - open + its FULL 12-package subtree: faf-cli's built cli.js has a static
+#    top-level `import … from "open"`, so cli.js is DOA (Init/Sync/DNA all fail
+#    from an installed .vsix) unless every transitive dep of open@11 resolves.
+#    npm hoists them all top-level. Re-derive this list with:
+#      node -e 'const s=new Set(),f=require("fs"),p=require("path");(function d(n){if(s.has(n))return;s.add(n);let j;try{j=JSON.parse(f.readFileSync(p.join("node_modules",n,"package.json")))}catch{return}for(const k of Object.keys(j.dependencies||{}))d(k)})("open");console.log([...s].sort())'
+#    if a future faf-cli bumps `open`. The CI vsix-extract check (release.yml)
+#    catches a regression here.
+#  - faf-cli's optional @anthropic-ai/sdk is installed but never required at
+#    runtime (stack-detection reads the string only) — stays ignored.
 node_modules/**
 !node_modules/faf-scoring-kernel/**
 !node_modules/faf-cli/dist/*.js
 !node_modules/faf-cli/package.json
 !node_modules/open/**
+!node_modules/bundle-name/**
+!node_modules/default-browser/**
+!node_modules/default-browser-id/**
+!node_modules/define-lazy-prop/**
+!node_modules/is-docker/**
+!node_modules/is-in-ssh/**
+!node_modules/is-inside-container/**
+!node_modules/is-wsl/**
+!node_modules/powershell-utils/**
+!node_modules/run-applescript/**
+!node_modules/wsl-utils/**

@@ -2,10 +2,12 @@
   "name": "faf-context",
   "displayName": "FAF — Project Context",
   "description": "Show where your project.faf stands — score, tier, drift — and render its context card, without leaving the editor.",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "publisher": "faf",
   "license": "MIT",
-  "private": true,
+  "icon": "resources/icon.png",
+  "pricing": "Free",
+  "qna": false,
   "engines": {
     "vscode": "^1.90.0"
   },
@@ -13,18 +15,28 @@
     "type": "git",
     "url": "https://github.com/Wolfe-Jam/faf-vscode.git"
   },
-  "homepage": "https://faf.one",
+  "homepage": "https://github.com/Wolfe-Jam/faf-vscode",
   "bugs": {
     "url": "https://github.com/Wolfe-Jam/faf-vscode/issues"
   },
+  "galleryBanner": {
+    "color": "#1a1a1a",
+    "theme": "dark"
+  },
   "categories": [
+    "AI",
+    "Visualization",
     "Other"
   ],
   "keywords": [
     "faf",
     "ai-context",
     "project-dna",
-    "agents-md"
+    "agents-md",
+    "claude",
+    "cursor",
+    "context",
+    "score"
   ],
   "main": "./dist/extension.js",
   "activationEvents": [
@@ -184,6 +196,7 @@
     "test": "bun test test/unit",
     "test:integration": "tsc -p tsconfig.integration.json && vscode-test",
     "smoke": "npm run build && node scripts/smoke.mjs",
+    "package": "vsce package",
     "vscode:prepublish": "node esbuild.js --production"
   },
   "dependencies": {
@@ -195,7 +208,9 @@
     "@types/vscode": "^1.90.0",
     "@vscode/test-cli": "^0.0.10",
     "@vscode/test-electron": "^2.4.1",
+    "@vscode/vsce": "^3.9.2",
     "esbuild": "^0.24.2",
+    "ovsx": "^1.1.1",
     "typescript": "^5.9.3"
   }
 }

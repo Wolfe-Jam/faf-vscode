@@ -7,10 +7,7 @@ FAF is the **Foundational AI-context Format** — IANA-registered project DNA fo
 AI. This extension is the developer's viewport onto it. The AI's half is
 [`faf-mcp`](https://www.npmjs.com/package/faf-mcp).
 
-> **Screenshots** live on the [Marketplace listing](https://marketplace.visualstudio.com/items?itemName=faf.faf-context)
-> once it is published. Until then: the status bar reads `✪ FAF 100%`, the
-> Activity Bar gains a **FAF Context** panel, and the context card opens beside
-> the editor.
+![FAF Context sidebar and rendered context card, side by side, scoring faf-cli itself at 100% Trophy](images/screenshot.png)
 
 ## What it does
 

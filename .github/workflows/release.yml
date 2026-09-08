@@ -1,8 +1,12 @@
-# 4b: create VSCE_PAT + OVSX_PAT repo secrets, then push a v* tag to publish.
+# ARMED 2026-09-08 — VSCE_PAT + OVSX_PAT repo secrets are set.
 #
-# Until both secrets exist the publish steps are skipped (see the `if:` guards),
-# so a `v*` tag builds and packages the .vsix as an artifact but publishes
-# nowhere. This workflow is UNARMED by design.
+# To ship a version: bump `package.json` `version`, update CHANGELOG.md,
+# commit, then `git tag vX.Y.Z && git push origin vX.Y.Z`. The tag must
+# match `package.json` — `vsce publish` publishes whatever `package.json`
+# says, so a mismatched tag either double-publishes or errors.
+#
+# The publish steps still carry `if:` guards on the secrets — remove a
+# secret to disarm without touching this file.
 
 name: Release
 
@@ -64,19 +68,24 @@ jobs:
           name: vsix
           path: faf-context-*.vsix
 
-      # --- Publish. Skipped until the 4b secrets exist. ---
+      # --- Publish the exact .vsix that passed the guard above. ---
+      # (Armed 2026-09-08: VSCE_PAT + OVSX_PAT repo secrets set.)
+
+      - name: Resolve the packaged .vsix path
+        id: vsix
+        run: echo "path=$(ls faf-context-*.vsix)" >> "$GITHUB_OUTPUT"
 
       - name: Publish to the VS Code Marketplace
         if: ${{ env.VSCE_PAT != '' }}
-        run: npx @vscode/vsce publish -p "$VSCE_PAT"
+        run: npx @vscode/vsce publish --packagePath "${{ steps.vsix.outputs.path }}" -p "$VSCE_PAT"
 
       - name: Publish to Open VSX
         if: ${{ env.OVSX_PAT != '' }}
-        run: npx ovsx publish faf-context-*.vsix -p "$OVSX_PAT"
+        run: npx ovsx publish "${{ steps.vsix.outputs.path }}" -p "$OVSX_PAT"
 
       - name: GitHub Release
         if: ${{ env.VSCE_PAT != '' }}
         uses: softprops/action-gh-release@v2
         with:
-          files: faf-context-*.vsix
+          files: ${{ steps.vsix.outputs.path }}
           generate_release_notes: true

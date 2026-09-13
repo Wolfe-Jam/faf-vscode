@@ -60,10 +60,10 @@ describe('HudTreeProvider — trophy vm', () => {
     expect(children.map((c) => c.length)).toEqual([3, 6, 12]);
   });
 
-  test('slot rows carry state via icon + description; ignored stack slots read N/A', () => {
+  test('slot rows carry state via icon + description; ignored stack slots read slotignored', () => {
     const stackGroup = roots[3]!;
     const rows = provider.getChildren(stackGroup).map((n) => provider.getTreeItem(n));
-    expect(rows.every((r) => r.description === 'N/A')).toBe(true);
+    expect(rows.every((r) => r.description === 'slotignored')).toBe(true);
     const icon = rows[0]!.iconPath as mockApi.ThemeIcon;
     expect(icon.id).toBe('dash');
     // trophy has no empty slots -> no navigation command anywhere

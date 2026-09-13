@@ -156,7 +156,7 @@ export class HudTreeProvider implements vscode.TreeDataProvider<HudNode> {
     );
     item.iconPath = STATE_ICON[slot.state];
     item.description =
-      slot.state === 'populated' ? undefined : slot.state === 'empty' ? 'empty' : 'N/A';
+      slot.state === 'populated' ? undefined : slot.state === 'empty' ? 'empty' : 'slotignored';
     item.tooltip = `${slot.path} · ${STATE_GLYPH[slot.state]} ${slot.state}`;
     item.contextValue = `faf.slot.${slot.state}`;
     if (slot.state === 'empty') {

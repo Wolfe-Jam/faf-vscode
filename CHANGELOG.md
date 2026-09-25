@@ -5,7 +5,11 @@ All notable changes to the **FAF — Project Context** extension are documented 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.1.4] - 2026-09-24
+
+### Changed
+- **The marketplace listing leads with the files a reader already knows.** The short description — the one line search results show — opened with `project.faf`, a word no stranger has met. It now names the score, the tier and drift against `AGENTS.md`, `CLAUDE.md` and `.cursorrules`. The README's lead paragraph follows suit.
+- **Search keywords widened** to the filenames people actually type: `claude-md`, `cursorrules`, `agents`, `gemini`.
 
 ### Fixed
 - **README badges.** shields.io retired its VS Code Marketplace badges, so they rendered "retired badge". The version badge now comes from vsmarketplacebadges.dev. The installs badge is removed: the replacement reports 0 while the Marketplace reports downloads.

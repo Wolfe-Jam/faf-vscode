@@ -6,7 +6,7 @@
 
 ## What This Is
 
-Show where your project.faf stands — score, tier, drift — and render its context card, without leaving the editor.
+Score your repo's AI context in the sidebar — tier, empty slots, and drift against AGENTS.md, CLAUDE.md and .cursorrules.
 
 ## Stack
 
@@ -18,7 +18,7 @@ Show where your project.faf stands — score, tier, drift — and render its con
 ## Context
 
 - **Who:** Developers using AI coding assistants who keep a project.faf and want its score, tier, and drift visible in the editor.
-- **What:** Show where your project.faf stands — score, tier, drift — and render its context card, without leaving the editor.
+- **What:** Score your repo's AI context in the sidebar — tier, empty slots, and drift against AGENTS.md, CLAUDE.md and .cursorrules.
 - **Why:** So the state of project.faf is a one-glance editor concern instead of a terminal round-trip — the human half of FAF context, paired with faf-mcp's AI half.
 - **Where:** https://github.com/Wolfe-Jam/faf-vscode
 - **When:** Shipped 2026-09-08. Live on the VS Code Marketplace and Open VSX as faf.faf-context. Status bar + sidebar HUD + context card, the version-locked FAF CLI runner, FAF Init/Sync/DNA commands, the getting-started walkthrough, CodeLens on project.faf, path-aware slot navigation, and Workspace Trust gating.

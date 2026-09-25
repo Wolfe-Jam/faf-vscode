@@ -1,8 +1,8 @@
 {
   "name": "faf-context",
   "displayName": "FAF — Project Context",
-  "description": "Show where your project.faf stands — score, tier, drift — and render its context card, without leaving the editor.",
-  "version": "0.1.3",
+  "description": "Score your repo's AI context in the sidebar — tier, empty slots, and drift against AGENTS.md, CLAUDE.md and .cursorrules.",
+  "version": "0.1.4",
   "publisher": "faf",
   "license": "MIT",
   "icon": "resources/icon.png",
@@ -33,8 +33,12 @@
     "ai-context",
     "project-dna",
     "agents-md",
+    "claude-md",
+    "cursorrules",
+    "agents",
     "claude",
     "cursor",
+    "gemini",
     "context",
     "score"
   ],

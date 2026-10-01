@@ -2,7 +2,7 @@
   "name": "faf-context",
   "displayName": "FAF — Project Context",
   "description": "Score your repo's AI context in the sidebar — tier, empty slots, and drift against AGENTS.md, CLAUDE.md and .cursorrules.",
-  "version": "0.1.4",
+  "version": "0.2.0",
   "publisher": "faf",
   "license": "MIT",
   "icon": "resources/icon.png",
@@ -212,7 +212,7 @@
     "vscode:prepublish": "node esbuild.js --production"
   },
   "dependencies": {
-    "faf-cli": "^7.11.0"
+    "faf-cli": "^8.0.1"
   },
   "devDependencies": {
     "@types/mocha": "^10.0.7",

@@ -37,19 +37,19 @@ describe('buildViewModel — trophy.faf', () => {
     expect(vm.counts).toEqual({
       populated: 9,
       empty: 0,
-      ignored: 12,
+      ignored: 24,
       active: 9,
-      total: 21,
+      total: 33,
     });
   });
 
   test('slots flatten and group by category', () => {
-    expect(vm.slots).toHaveLength(21);
+    expect(vm.slots).toHaveLength(33);
     expect(vm.grouped.project).toHaveLength(3);
     expect(vm.grouped.human).toHaveLength(6);
     // stack.* slots are ignored but still present, grouped under their categories
     const groupedTotal = Object.values(vm.grouped).reduce((n, g) => n + g.length, 0);
-    expect(groupedTotal).toBe(21);
+    expect(groupedTotal).toBe(33);
   });
 
   test('spot-checked slot label + state', () => {

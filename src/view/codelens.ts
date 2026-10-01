@@ -16,11 +16,12 @@ const SECTIONS: ReadonlyArray<{
   { re: /^project:/, key: 'project', label: 'Project' },
   { re: /^human_context:/, key: 'human', label: 'Human Context' },
   { re: /^stack:/, key: 'stack', label: 'Stack' },
+  { re: /^monorepo:/, key: 'enterprise', label: 'Enterprise' },
 ];
 
 /**
  * A CodeLens above each top-level section header in `project.faf`
- * (`project:` / `human_context:` / `stack:` at column 0) with that section's
+ * (`project:` / `human_context:` / `stack:` / `monorepo:` at column 0) with that section's
  * fill tally. Click → jump to the first empty slot in the section.
  *
  * The provider has no scoring of its own: `setModel` feeds it the current

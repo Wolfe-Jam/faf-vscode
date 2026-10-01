@@ -7,7 +7,7 @@ import { dirname } from 'node:path';
 import {
   computeDrift,
   findFafFile,
-  generateProjectHtml,
+  renderProjectHtml as fafRenderProjectHtml,
   readFaf,
   readFafRaw,
   scoreFafYaml,
@@ -80,5 +80,5 @@ export function scoreExternalFaf(fafPath: string): FafViewModel {
 export function renderProjectHtml(fafPath: string, score?: ScoreResult): string {
   const data = readFaf(fafPath);
   const result = score ?? scoreFafYaml(readFafRaw(fafPath));
-  return generateProjectHtml(data, result, fafPath);
+  return fafRenderProjectHtml(data, result, fafPath);
 }

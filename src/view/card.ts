@@ -7,7 +7,7 @@ export { OPEN_CARD_COMMAND };
 
 const VIEW_TYPE = 'faf-context.card';
 
-// faf-cli's `generateProjectHtml` is a self-contained static document: inline
+// faf-cli's `renderProjectHtml` is a self-contained static document: inline
 // `<style>` only, no `<script>`, no external `src`/`href`, no `data:` URIs.
 // `default-src 'none'` locks everything down; `style-src 'unsafe-inline'` allows
 // the one inline stylesheet + the handful of inline `style=` attributes;

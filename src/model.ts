@@ -24,7 +24,7 @@ export interface SlotView {
 
 /** A HUD display group — the three the sidebar renders. */
 export interface HudGroup {
-  key: 'project' | 'human' | 'stack';
+  key: 'project' | 'human' | 'stack' | 'enterprise';
   label: string;
   slots: SlotView[];
   populated: number;
@@ -111,27 +111,28 @@ export function tierHex(name: string): string | null {
 }
 
 // Slot category -> HUD display group. frontend/backend/universal collapse into
-// Stack; the enterprise_* categories are slots 22–33 and never reach `faf score`
-// output — if one somehow does, it folds into Stack too (never its own group).
+// Stack. The enterprise_* categories (slots 22–33: infra, app, ops) are their
+// own group: faf-cli 8 scores all 33, and most projects mark these slotignored.
 const GROUP_OF: Record<SlotCategory, HudGroup['key']> = {
   project: 'project',
   human: 'human',
   frontend: 'stack',
   backend: 'stack',
   universal: 'stack',
-  enterprise_infra: 'stack',
-  enterprise_app: 'stack',
-  enterprise_ops: 'stack',
+  enterprise_infra: 'enterprise',
+  enterprise_app: 'enterprise',
+  enterprise_ops: 'enterprise',
 };
 
-const GROUP_ORDER: HudGroup['key'][] = ['project', 'human', 'stack'];
+const GROUP_ORDER: HudGroup['key'][] = ['project', 'human', 'stack', 'enterprise'];
 const GROUP_LABEL: Record<HudGroup['key'], string> = {
   project: 'Project',
   human: 'Human Context',
   stack: 'Stack',
+  enterprise: 'Enterprise',
 };
 
-/** Fold the 21 scored slots into the three collapsible sidebar groups. */
+/** Fold the 33 scored slots into the four collapsible sidebar groups. */
 export function hudGroups(slots: SlotView[]): HudGroup[] {
   const buckets = new Map<HudGroup['key'], SlotView[]>(
     GROUP_ORDER.map((k) => [k, []]),
@@ -210,7 +211,7 @@ export function buildViewModel(
       state,
       // Unknown path → Stack (via GROUP_OF: universal → 'stack'), matching the
       // stated intent. Never triggers today — `ScoreResult.slots` is the known
-      // 21, all in `SLOT_BY_PATH`.
+      // 33, all in `SLOT_BY_PATH`.
       category: def?.category ?? 'universal',
     };
   });

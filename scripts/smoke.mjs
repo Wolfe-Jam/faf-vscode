@@ -220,7 +220,7 @@ assert.equal(context.subscriptions.length >= 3, true, 'expected >= 3 subscriptio
 commands.get('faf-context.refresh')();
 assert.equal(items[0].text, '✪ FAF 100%', 'refresh command changed the score');
 
-// The context card renders through the bundled generateProjectHtml.
+// The context card renders through the bundled renderProjectHtml.
 commands.get('faf-context.openCard')();
 assert.equal(panels.length, 1, 'openCard did not create a webview panel');
 assert.ok(

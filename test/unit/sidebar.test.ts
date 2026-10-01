@@ -38,9 +38,10 @@ describe('HudTreeProvider — trophy vm', () => {
   provider.refresh(vmFor('trophy.faf'));
   const roots = provider.getChildren();
 
-  test('roots: header + 3 slot groups (no drift node without a report)', () => {
+  test('roots: header + 4 slot groups (no drift node without a report)', () => {
     expect(roots.map((n) => (n as { kind: string }).kind)).toEqual([
       'header',
+      'group',
       'group',
       'group',
       'group',
@@ -53,11 +54,11 @@ describe('HudTreeProvider — trophy vm', () => {
     expect(item.description).toBe('Trophy');
   });
 
-  test('the 3 groups are Project / Human Context / Stack with the right counts', () => {
+  test('the 4 groups are Project / Human Context / Stack / Enterprise with the right counts', () => {
     const groups = roots.slice(1).map((n) => provider.getTreeItem(n));
-    expect(groups.map((g) => g.label)).toEqual(['Project', 'Human Context', 'Stack']);
+    expect(groups.map((g) => g.label)).toEqual(['Project', 'Human Context', 'Stack', 'Enterprise']);
     const children = roots.slice(1).map((n) => provider.getChildren(n));
-    expect(children.map((c) => c.length)).toEqual([3, 6, 12]);
+    expect(children.map((c) => c.length)).toEqual([3, 6, 12, 12]);
   });
 
   test('slot rows carry state via icon + description; ignored stack slots read slotignored', () => {

@@ -18,8 +18,8 @@ AI. This extension is the developer's viewport onto it. The AI's half is
 - **Status bar** — tier glyph + score (`✪ FAF 100%` / `◇ FAF 92%`). Tooltip:
   tier, gap to the next tier, populated-slot count. Click opens the context card.
 - **Sidebar** (Activity Bar → **FAF Context**) — a score/tier header with the gap
-  to the next tier, the 21 scored slots folded into three collapsible groups
-  (Project / Human Context / Stack) with per-slot state, and a **Drift** group:
+  to the next tier, the 33 scored slots folded into four collapsible groups
+  (Project / Human Context / Stack / Enterprise) with per-slot state, and a **Drift** group:
   one row per AI-context file (`CLAUDE.md`, `AGENTS.md`, `.cursorrules`,
   `GEMINI.md`) showing its mtime relationship to `project.faf`, with an inline
   **Sync** action.

@@ -5,6 +5,16 @@ All notable changes to the **FAF — Project Context** extension are documented 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2026-10-01
+
+**The Always33 engine: the extension now gives your file the same score as faf-cli and every other FAF tool.**
+
+### Changed
+- **faf-cli `^8.0.1`** (was `^7.11.0`). Scoring, tiers, slots, drift and the context card come from faf-cli 8's always-33 kernel, so the status bar and sidebar show the number `faf score` prints. Under 7.11 the extension scored 21 slots while `faf score` scored 33.
+- **Scores can move.** A `project.faf` without the 12 enterprise `slotignored` markers now counts them as empty (21 filled is 64%). Run `faf auto` (faf-cli) once and the score returns.
+- **The sidebar has a fourth group, Enterprise**, for the 12 enterprise slots (infra, app, ops), which most projects mark `slotignored`. They no longer fold into Stack. The `monorepo:` section gets its own CodeLens tally.
+- The context card renders with `renderProjectHtml` (faf-cli 8's name; `generateProjectHtml` is deprecated).
+
 ## [0.1.4] - 2026-09-24
 
 ### Changed

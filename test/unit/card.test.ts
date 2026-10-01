@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { generateProjectHtml, readFaf, scoreFafYaml } from 'faf-cli';
+import { renderProjectHtml as fafRenderProjectHtml, readFaf, scoreFafYaml } from 'faf-cli';
 import type { ScoreResult } from 'faf-cli';
 import * as mockApi from '../mocks/vscode';
 import { buildViewModel } from '../../src/model';
@@ -11,7 +11,7 @@ import { injectCsp, showCard, disposeCard } from '../../src/view/card';
 const WS_FAF = join(import.meta.dir, '..', 'fixtures', 'ws-trophy', 'project.faf');
 
 function cardHtml(): string {
-  return generateProjectHtml(
+  return fafRenderProjectHtml(
     readFaf(WS_FAF),
     scoreFafYaml(readFileSync(WS_FAF, 'utf-8')),
     WS_FAF,

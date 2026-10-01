@@ -31,6 +31,7 @@ describe('scoreWorkspace', () => {
       'Project',
       'Human Context',
       'Stack',
+      'Enterprise',
     ]);
   });
 

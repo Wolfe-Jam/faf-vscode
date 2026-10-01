@@ -27,11 +27,12 @@ describe('FafCodeLensProvider — trophy.faf', () => {
   const { raw, lenses } = lensesFor('trophy.faf');
 
   test('one lens per top-level section, in document order', () => {
-    expect(lenses).toHaveLength(3);
+    expect(lenses).toHaveLength(4);
     expect(lenses.map((l) => l.range.start.line)).toEqual([
       headerLine(raw, /^project:/),
       headerLine(raw, /^stack:/),
       headerLine(raw, /^human_context:/),
+      headerLine(raw, /^monorepo:/),
     ]);
   });
 
@@ -42,6 +43,8 @@ describe('FafCodeLensProvider — trophy.faf', () => {
       // section is n/a rather than "0/0".
       '— Stack — not scored for this project',
       '● Human Context — 6/6 · 0 empty',
+      // The 12 enterprise slots (faf-cli 8 scores all 33) — slotignored for a CLI.
+      '— Enterprise — not scored for this project',
     ]);
   });
 

@@ -2,6 +2,7 @@
 
 [![VS Code Marketplace](https://vsmarketplacebadges.dev/version/faf.faf-context.svg?label=VS%20Code%20Marketplace&color=00D4D4)](https://marketplace.visualstudio.com/items?itemName=faf.faf-context)
 [![Open VSX](https://img.shields.io/open-vsx/v/faf/faf-context?label=Open%20VSX&color=FF6B35)](https://open-vsx.org/extension/faf/faf-context)
+[![Business card · Get yours →](https://wolfe-jam.github.io/agent-business-card/badge.svg)](https://wolfe-jam.github.io/agent-business-card/?repo=Wolfe-Jam/faf-vscode)
 
 A human-facing HUD for your repo's AI context, inside the editor. Score and tier
 for your `project.faf`, drift against `AGENTS.md`, `CLAUDE.md`, `GEMINI.md` and

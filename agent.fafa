@@ -1,0 +1,55 @@
+version: "1.0"
+agent:
+  name: faf-vscode
+  displayName: faf-vscode
+  id: urn:air:faf.one:agent:faf-vscode
+  version: 0.2.0
+  description: VS Code extension that shows where your project.faf stands (score, tier, drift) and renders its context card, without leaving the editor.
+  homepage: https://faf.one
+capabilities:
+  - name: Refresh Score
+    type: tool
+    description: Score the workspace project.faf and show its tier in the sidebar and status bar
+    tags:
+      - refresh score
+  - name: Drift
+    type: tool
+    description: Show drift between project.faf and AGENTS.md, CLAUDE.md, GEMINI.md and .cursorrules
+    tags:
+      - drift
+  - name: Open Context Card
+    type: tool
+    description: Render the project's context card inside VS Code
+    tags:
+      - open context card
+  - name: Sync Context Files
+    type: tool
+    description: Run faf sync between project.faf and CLAUDE.md with the bundled CLI
+    tags:
+      - sync context files
+  - name: Initialize project.faf
+    type: tool
+    description: Author a project.faf for the open folder
+    tags:
+      - initialize project.faf
+  - name: Show DNA Journey
+    type: tool
+    description: Show the project's .faf DNA from birth to now
+    tags:
+      - show dna journey
+  - name: Score a GitHub Repo
+    type: tool
+    description: Score any public GitHub repo by its URL
+    tags:
+      - score a github repo
+endpoints:
+  - protocol: vscode-extension
+    transport: stdio
+    location: faf.faf-context
+metadata:
+  cards:
+    domain: faf.one
+    examples:
+      - How do I see my project.faf score in VS Code?
+      - Is my CLAUDE.md out of date with project.faf?
+      - How do I score a GitHub repo from the editor?

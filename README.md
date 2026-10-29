@@ -8,6 +8,8 @@ A human-facing HUD for your repo's AI context, inside the editor. Score and tier
 for your `project.faf`, drift against `AGENTS.md`, `CLAUDE.md`, `GEMINI.md` and
 `.cursorrules`, and the context card rendered without leaving VS Code.
 
+⭐ [Star it on GitHub](https://github.com/Wolfe-Jam/faf-vscode): bookmarks it for you, helps other devs find it too.
+
 FAF is the **Foundational AI-context Format** — IANA-registered project DNA for
 AI. This extension is the developer's viewport onto it. The AI's half is
 [`faf-mcp`](https://www.npmjs.com/package/faf-mcp).
